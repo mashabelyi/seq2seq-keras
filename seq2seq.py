@@ -139,12 +139,17 @@ class Seq2SeqKeras:
 		self.encode_decode.save('model/init.h5')
 		print(self.encode_decode.summary())
 	
+	def eval_batch(self, batch):
+		if batch % _cfg.eval_every == 0:
+			self.decoder.decode_batch(queries, "chats/results_batch_{}.txt".format(batch))
+
+
 	def train(self, inputs_train, target_train, inputs_val, target_val):
 		# define callback - to save model and test decoding
 
 		filepath="model/weights.hdf5" # this is weights, not full model
 		checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-		decoder_callback = LambdaCallback(on_epoch_end=lambda epoch,logs: self.decoder.decode_batch(queries, "chats/results_epoch_{}.txt".format(epoch)))
+		decoder_callback = LambdaCallback(on_batch_end=lambda batch,logs: self.eval_batch(batch))
 		callbacks_list = [checkpoint, decoder_callback]
 
 		history = self.encode_decode.fit(inputs_train, target_train,

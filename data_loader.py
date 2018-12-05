@@ -128,18 +128,31 @@ class DataLoader:
 
 		self.training = ([encoder_input_train, decoder_input_train], decoder_target_train)
 		self.val = ([encoder_input_val, decoder_input_val], decoder_target_val)
+		
+		self.train_inputs = {
+			"encoder": encoder_input_train,
+			"decoder": decoder_input_train,
+			"target": decoder_target_train,
+		}
+		self.val_inputs = {
+			"encoder": encoder_input_val,
+			"decoder": decoder_input_val,
+			"target": decoder_target_val,
+		}
 
-	
-	# def tokenizer(self):
-	# 	return self.tokenizer
-
-	def get_training(self):
+	def get_training(self, n=None):
 		# return ([encoder, decoder], target)
-		return self.training
+		if n is None:
+			return self.training
+		else:
+			return ([self.train_inputs["encoder"][0:n], self.train_inputs["decoder"][0:n]], self.train_inputs["target"][0:n])
 
-	def get_val(self):
+	def get_val(self, n = None):
 		# return ([encoder, decoder], target)
-		return self.val
+		if n is None:
+			return self.val
+		else:
+			return ([self.val_inputs["encoder"][0:n], self.val_inputs["decoder"][0:n]], self.val_inputs["target"][0:n])
 
 
 

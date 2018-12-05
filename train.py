@@ -13,13 +13,17 @@ def main():
     	required=True, help='training data file.')
 	parser.add_argument('--pre_embed', type=str,
     	help='pre-trained embeddings file to use as input for model.')
+	parser.add_argument('--n_train', type=int,
+    	help='number of training samples to use.')
+	parser.add_argument('--n_val', type=int,
+    	help='number of validation samples to use.')
 
 	args = parser.parse_args()
 	
 	# load and process data
 	loader = DataLoader(args.input)
-	in_train, target_train = loader.get_training()
-	in_val, target_val = loader.get_val()
+	in_train, target_train = loader.get_training(args.n_train)
+	in_val, target_val = loader.get_val(args.n_val)
 
 
 	# load emebddings

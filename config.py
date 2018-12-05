@@ -19,3 +19,5 @@ end_token = "eos"
 batch_size = 128  
 # Number of epochs to train for
 epochs = 10
+# eval decoder every N batches
+eval_every = 10 # every 10 batches
