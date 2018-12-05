@@ -12,6 +12,8 @@ class DataLoader:
 	def load(self, source):
 		print("Reading data from {}".format(source))
 
+		# max_len = 10 # trying to decrese sentence lengths...
+
 		## load data
 		data = open(source, encoding='utf-8').read()
 		## split by /n/n
@@ -22,6 +24,11 @@ class DataLoader:
 		for d in dialogues:
 		    lines = d.split("\n")
 		    for i in range(len(lines)):
+		        # if i < len(lines)-1:
+		        # if (i < len(lines)-1 
+		        # 	and len(lines[i].split()) < max_len
+		        # 	and len(lines[i+1].split()) < max_len
+		        # 	):
 		        if i < len(lines)-1:
 		            context.append(lines[i])
 		            response.append(lines[i+1])
@@ -102,6 +109,7 @@ class DataLoader:
 		# ==========================================
 		
 		pad_token = 0 #tokenizer.word_index["eos"]
+		eos_token = 2
 		print("Padding sequences to len = {}".format(_cfg.max_sequence_length))
 		encoder_input_train = pad_sequences(encoder_input_train, maxlen=_cfg.max_sequence_length, padding='pre', value=pad_token)
 		decoder_input_train = pad_sequences(decoder_input_train, maxlen=_cfg.max_sequence_length, padding='post', value=pad_token)

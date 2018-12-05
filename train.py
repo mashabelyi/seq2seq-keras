@@ -17,6 +17,8 @@ def main():
     	help='number of training samples to use.')
 	parser.add_argument('--n_val', type=int,
     	help='number of validation samples to use.')
+	parser.add_argument('--max_len', type=int,
+    	help='maximum sentence size.')
 
 	args = parser.parse_args()
 	

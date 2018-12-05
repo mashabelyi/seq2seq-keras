@@ -3,19 +3,25 @@ from keras.models import Model, load_model
 from keras.layers import Input, Embedding, LSTM, Dense, Flatten
 from keras.callbacks import ModelCheckpoint, Callback, LambdaCallback
 from keras.preprocessing.sequence import pad_sequences
+from keras import backend as K
 import h5py, pickle
 import numpy as np
 import pandas as pd
 from utils import *
 
 queries = [
+	"hi how are you",
+	"alright",
 	"my name is david. what is my name?",
 	"my name is john. what is my name?",
 	"are you a leader or a follower?",
 	"are you a follower or a leader?",
 	"what is moral?",
 	"what is immoral?",
-	"what is altruism?"
+	"what is morality?",
+	"what is the definition of altruism?",
+	"ok ... so what is the definition of morality?",
+	"tell me the definition of morality , i am quite upset now!"
 ]
 
 class Decoder:
@@ -89,7 +95,7 @@ class Decoder:
 
 			# Exit condition: either hit max length
 			# or find stop character.
-			if (sampled_char == '\n' or
+			if (sampled_char == 'eos' or
 				len(decoded_sentence) > _cfg.max_sequence_length):
 				stop_condition = True
 
@@ -113,7 +119,7 @@ class Seq2SeqKeras:
 		self.decoder = Decoder(self.encode_decode, tokenizer)
 
 	def build(self, embed_weights=None):
-
+		_cfg.num_tokens = np.shape(embed_weights)[0]
 		## Set up encoder
 		encoder_inputs = Input(shape=(_cfg.max_sequence_length,))
 		x = Embedding(_cfg.num_tokens, _cfg.embed_size, name="emb_encoder")(encoder_inputs)
@@ -127,10 +133,33 @@ class Seq2SeqKeras:
 		decoder_outputs, _, _ = decoder_lstm(d, initial_state=encoder_states)
 		decoder_outputs = Dense(_cfg.num_tokens, activation='softmax', name="decoder_dense")(decoder_outputs)
 
+		# def custom_objective(y_true, y_pred):
+		# 	'''Just another crossentropy'''
+		# 	loss = 0;
+
+		# 	print(K.shape(y_true))
+		# 	print(y_pred.get_shape())
+		# 	print(K.shape(y_pred))
+		# 	print(y_true)
+		# 	print(K.gather(y_pred, ))
+		# 	print(K.argmax(y_pred))
+		# 	for i in range(len(y_true)):
+		# 		gold = i[0]
+		# 		pred = np.argmax(y_pred[i])
+		# 		if gold == 0:
+		# 			loss += 2 # penalty for padded values
+		# 		elif gold != pred:
+		# 			# motivate to increase probability of correc word 
+		# 			# and decrease probability of incorrect word
+		# 			# loss == probability of wrong value + (1- probability of correct value)
+		# 			loss += y_pred[pred] + (1-y_pred[gold])
+			# return loss
+				
 
 		# Main model that learns weights to predict target values
 		self.encode_decode = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 		self.encode_decode.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+		# self.encode_decode.compile(loss=custom_objective, optimizer='adadelta', metrics=['accuracy'])
 		
 		if embed_weights is not None:
 			self.encode_decode.get_layer("emb_encoder").set_weights([embed_weights])

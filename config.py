@@ -16,7 +16,7 @@ latent_dim = 256
 beg_token = "begos"
 end_token = "eos"
 # Batch size for training
-batch_size = 128  
+batch_size = 512  
 # Number of epochs to train for
 epochs = 10
 # eval decoder every N batches
